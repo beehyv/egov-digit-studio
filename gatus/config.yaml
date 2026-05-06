@@ -1,21 +1,16 @@
-# Gatus Configuration for DIGIT Core Services
+# Gatus — egov-digit-studio (same Docker network as docker-compose.yml)
 # https://github.com/TwiN/gatus
 
 storage:
   type: memory
 
 ui:
-  title: DIGIT Core Services - Health Dashboard
-  description: Real-time health monitoring for all DIGIT microservices
-
-# Alerting (optional - configure as needed)
-# alerting:
-#   slack:
-#     webhook-url: "https://hooks.slack.com/services/xxx/yyy/zzz"
+  title: egov-digit-studio — health
+  description: Monitors services on the egov-network (hostnames match Compose service names)
 
 endpoints:
   # ==================== Infrastructure ====================
-  - name: PostgreSQL
+  - name: PgBouncer (alias postgres)
     group: Infrastructure
     url: "tcp://postgres:5432"
     interval: 30s
@@ -36,103 +31,230 @@ endpoints:
     conditions:
       - "[CONNECTED] == true"
 
-  # ==================== Core Services ====================
-  - name: MDMS Service
-    group: Core Services
+  - name: MinIO API
+    group: Infrastructure
+    url: "tcp://minio:9000"
+    interval: 30s
+    conditions:
+      - "[CONNECTED] == true"
+
+  - name: Elasticsearch
+    group: Infrastructure
+    url: "http://elasticsearch:9200/_cluster/health"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  # ==================== MDMS ====================
+  - name: MDMS backend (Spring)
+    group: MDMS
+    url: "http://mdms-backend:8094/mdms-v2/health"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: MDMS nginx (egov-mdms-service)
+    group: MDMS
     url: "http://egov-mdms-service:8094/mdms-v2/health"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
 
-  - name: Encryption Service
-    group: Core Services
+  # ==================== Core services ====================
+  - name: Encryption service
+    group: Core
     url: "http://egov-enc-service:1234/egov-enc-service/actuator/health"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
 
-  - name: ID Generation Service
-    group: Core Services
+  - name: ID generation
+    group: Core
     url: "http://egov-idgen:8088/egov-idgen/health"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
 
-  - name: User Service
-    group: Core Services
+  - name: OTP service
+    group: Core
+    url: "http://egov-otp:8080/otp/health"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: User service
+    group: Core
     url: "http://egov-user:8107/user/health"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
 
-  - name: Workflow Service
-    group: Core Services
+  - name: Workflow v2
+    group: Core
     url: "http://egov-workflow-v2:8109/egov-workflow-v2/health"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
 
-  - name: Localization Service
-    group: Core Services
+  - name: Localization
+    group: Core
     url: "http://egov-localization:8096/localization/actuator/health"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
 
-  - name: Boundary Service
-    group: Core Services
+  - name: Boundary (Spring)
+    group: Core
     url: "http://boundary-service:8081/boundary-service/actuator/health"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
 
-  - name: Access Control Service
-    group: Core Services
+  - name: Access control
+    group: Core
     url: "http://egov-accesscontrol:8090/access/health"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
 
-  - name: Persister Service
-    group: Core Services
+  - name: Persister
+    group: Core
     url: "http://egov-persister:8091/common-persist/actuator/health"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
 
-  # ==================== API Gateway ====================
-  - name: Kong Gateway (Proxy)
-    group: API Gateway
+  - name: Filestore
+    group: Core
+    url: "http://egov-filestore:8083/filestore/health"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: HRMS
+    group: Core
+    url: "http://egov-hrms:8092/egov-hrms/actuator/health"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: URL shortening
+    group: Core
+    url: "http://egov-url-shortening:8080/egov-url-shortening/actuator/health"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Boundary management (Node)
+    group: Core
+    url: "tcp://egov-bndry-mgmnt:8080"
+    interval: 30s
+    conditions:
+      - "[CONNECTED] == true"
+
+  # ==================== Studio ====================
+  - name: Health individual
+    group: Studio
+    url: "http://health-individual:8080/health-individual/actuator/health"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Health service request
+    group: Studio
+    url: "http://health-service-request:8080/health-service-request/actuator/health"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Public service init (Go listener)
+    group: Studio
+    url: "tcp://public-service-init:8080"
+    interval: 30s
+    conditions:
+      - "[CONNECTED] == true"
+
+  - name: Public service (Go listener)
+    group: Studio
+    url: "tcp://public-service:8080"
+    interval: 30s
+    conditions:
+      - "[CONNECTED] == true"
+
+  - name: User OTP
+    group: Studio
+    url: "http://user-otp:8080/user-otp/actuator/health"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Notification SMS
+    group: Studio
+    url: "http://egov-notification-sms:8080/egov-notification-sms/actuator/health"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: PDF service
+    group: Studio
+    url: "http://pdf-service:8080/"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Studio PDF
+    group: Studio
+    url: "http://studio-pdf:8080/"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: Inbox
+    group: Studio
+    url: "http://inbox:8080/inbox/actuator/health"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: digit-studio
+    group: Studio
+    url: "http://digit-studio:80/digit-studio/"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  # ==================== Gateway & UI ====================
+  - name: Kong proxy
+    group: Gateway
     url: "http://kong:8000/"
     interval: 30s
     conditions:
       - "[STATUS] < 500"
 
   - name: Kong Admin API
-    group: API Gateway
+    group: Gateway
     url: "http://kong:8001/"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
 
-  - name: Kong Status
-    group: API Gateway
+  - name: Kong status
+    group: Gateway
     url: "http://kong:8100/status"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
 
-  # ==================== Application Services ====================
-  - name: DIGIT UI
-    group: Application
+  - name: digit-ui
+    group: Frontend
     url: "http://digit-ui:80/digit-ui/"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
 
-  # ==================== API Functionality Tests ====================
-  - name: MDMS API - Tenant Search
-    group: API Tests
+  # ==================== API checks ====================
+  - name: MDMS API — tenant search
+    group: API tests
     url: "http://egov-mdms-service:8094/mdms-v2/v1/_search"
     method: POST
     headers:
@@ -149,24 +271,24 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
 
-  - name: IDGen API - Generate ID
-    group: API Tests
+  - name: IDGen API — generate (smoke-style)
+    group: API tests
     url: "http://egov-idgen:8088/egov-idgen/id/_generate"
     method: POST
     headers:
       Content-Type: application/json
     body: |
       {
-        "RequestInfo": {"apiId": "digit", "ver": "1.0"},
-        "idRequests": [{"tenantId": "pg", "idName": "pgr.servicerequestid"}]
+        "RequestInfo": {"apiId": "Rainmaker", "ver": ".01", "action": "_generate", "msgId": "gatus"},
+        "idRequests": [{"idName": "smoke.test.id", "tenantId": "pg.citya", "format": "GATUS/[cy:yyyy-MM-dd]/[seq_eg_pgr_id]"}]
       }
     interval: 60s
     conditions:
       - "[STATUS] == 200"
       - "[BODY].responseInfo.status == SUCCESSFUL"
 
-  - name: Localization API - Search
-    group: API Tests
+  - name: Localization API — search
+    group: API tests
     url: "http://egov-localization:8096/localization/messages/v1/_search"
     method: POST
     headers:

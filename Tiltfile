@@ -23,6 +23,9 @@ docker_compose('./docker-compose.yml')
 
 # ==================== Infrastructure ====================
 dc_resource('postgres-db', labels=['infrastructure'])
+dc_resource('db-migrations', labels=['infrastructure'],
+    resource_deps=['postgres-db'],
+)
 dc_resource('pgbouncer', labels=['infrastructure'])
 dc_resource('redis', labels=['infrastructure'])
 dc_resource('redpanda', labels=['infrastructure'])
@@ -150,31 +153,31 @@ dc_resource('elasticsearch', labels=['studio'])
 dc_resource('health-individual', labels=['studio'],
     resource_deps=['egov-mdms-service', 'egov-enc-service', 'egov-idgen', 'egov-user', 'egov-localization'],
     links=[
-        link('http://localhost:18111/health-individual/health', 'Health'),
+        link('http://localhost:18111/health-individual/actuator/health', 'Health'),
     ])
 
 dc_resource('health-service-request', labels=['studio'],
     resource_deps=['egov-mdms-service'],
     links=[
-        link('http://localhost:18112/health-service-request/health', 'Health'),
+        link('http://localhost:18112/health-service-request/actuator/health', 'Health'),
     ])
 
 dc_resource('public-service-init', labels=['studio'],
     resource_deps=['egov-workflow-v2', 'egov-idgen', 'egov-localization', 'health-individual', 'health-service-request'],
     links=[
-        link('http://localhost:18113/public-service-init/actuator/health', 'Health'),
+        link('http://localhost:18113/', 'Service'),
     ])
 
 dc_resource('public-service', labels=['studio'],
     resource_deps=['public-service-init', 'health-individual', 'health-service-request'],
     links=[
-        link('http://localhost:18114/public-service/actuator/health', 'Health'),
+        link('http://localhost:18114/', 'Service'),
     ])
 
 dc_resource('user-otp', labels=['studio'],
     resource_deps=['egov-otp', 'egov-user', 'egov-localization'],
     links=[
-        link('http://localhost:18116/user-otp/health', 'Health'),
+        link('http://localhost:18116/user-otp/actuator/health', 'Health'),
     ])
 
 dc_resource('egov-notification-sms', labels=['studio'],
@@ -186,13 +189,13 @@ dc_resource('egov-notification-sms', labels=['studio'],
 dc_resource('pdf-service', labels=['studio'],
     resource_deps=['egov-mdms-service', 'egov-localization', 'egov-filestore'],
     links=[
-        link('http://localhost:18119/pdf-service/actuator/health', 'Health'),
+        link('http://localhost:18119/', 'Health'),
     ])
 
 dc_resource('studio-pdf', labels=['studio'],
     resource_deps=['pdf-service', 'public-service', 'egov-user', 'egov-workflow-v2'],
     links=[
-        link('http://localhost:18118/studio-pdf/health', 'Health'),
+        link('http://localhost:18118/', 'Service'),
     ])
 
 dc_resource('digit-studio', labels=['studio'],
@@ -205,20 +208,20 @@ dc_resource('digit-studio', labels=['studio'],
 dc_resource('inbox', labels=['studio'],
     resource_deps=['elasticsearch', 'egov-workflow-v2', 'egov-user', 'egov-mdms-service'],
     links=[
-        link('http://localhost:18120/inbox/health', 'Health'),
+        link('http://localhost:18120/inbox/actuator/health', 'Health'),
     ])
 
 # ==================== Local Resources ====================
 local_resource(
     'nuke-db',
-    cmd='docker compose down -v && docker compose up -d postgres redis redpanda',
+    cmd='docker compose down -v && docker compose up -d postgres-db redis redpanda',
     auto_init=False,
     labels=['maintenance'],
 )
 
 cmd_button(
     name='nuke-db-btn',
-    argv=['sh', '-c', 'docker compose down -v && docker compose up -d postgres redis redpanda'],
+    argv=['sh', '-c', 'docker compose down -v && docker compose up -d postgres-db redis redpanda'],
     location=location.NAV,
     icon_name='delete_forever',
     text='Nuke DB',

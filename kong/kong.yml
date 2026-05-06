@@ -110,15 +110,6 @@ services:
     paths:
     - /localization
     strip_path: false
-- name: location-service
-  url: http://egov-location:8084
-  tags:
-  - core
-  routes:
-  - name: location-route
-    paths:
-    - /egov-location
-    strip_path: false
 - name: boundary-service
   url: http://boundary-service:8081
   tags:
@@ -333,7 +324,7 @@ services:
     - /inbox
     strip_path: false
 - name: jupyter-service
-  url: http://digit-jupyter:8888
+  url: http://jupyter:8888
   tags:
   - tools
   - jupyter

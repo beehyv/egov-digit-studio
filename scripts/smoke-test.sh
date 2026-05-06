@@ -1,6 +1,6 @@
 #!/bin/bash
 # Smoke tests for DIGIT local development environment
-# Related: https://github.com/subhashini-egov/digit-2.9lts-core-storm/issues/6
+# Smoke checks for services reachable on localhost ports (egov-digit-studio stack).
 set -e
 
 BASE_URL="${BASE_URL:-http://localhost:18000}"

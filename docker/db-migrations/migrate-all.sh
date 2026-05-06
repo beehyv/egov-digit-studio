@@ -32,30 +32,21 @@ run_migration() {
 
 # Run migrations for each service
 # Each service has its own schema_version table to track migrations independently
+#
+# Skipped (schema already in db/full-dump.sql — re-running Flyway would duplicate DDL):
+#   egov-hrms, egov-user, egov-workflow-v2
+# Skipped mdms-v2: dump has eg_mdms_data / eg_mdms_schema_definition and mdms_schema_version;
+# Flyway here uses mdms_v2_schema_version so migrate would re-apply CREATEs and fail.
 
-# Core services - order matters for dependencies
-if [ -d "/flyway/sql/egov-user" ]; then
-    run_migration "egov-user" "egov_user_schema_version" "filesystem:/flyway/sql/egov-user"
+# Skipped public-service / public-service-init: dump already has public.service
+# (access-control module registry); it has no service_code column, so studio DDL + FKs fail.
+
+if [ -d "/flyway/sql/health-individual" ]; then
+    run_migration "health-individual" "health_individual_schema_version" "filesystem:/flyway/sql/health-individual"
 fi
 
-if [ -d "/flyway/sql/egov-idgen" ]; then
-    run_migration "egov-idgen" "egov_idgen_schema_version" "filesystem:/flyway/sql/egov-idgen"
-fi
-
-if [ -d "/flyway/sql/egov-localization" ]; then
-    run_migration "egov-localization" "egov_localization_schema_version" "filesystem:/flyway/sql/egov-localization"
-fi
-
-if [ -d "/flyway/sql/egov-accesscontrol" ]; then
-    run_migration "egov-accesscontrol" "egov_accesscontrol_schema_version" "filesystem:/flyway/sql/egov-accesscontrol"
-fi
-
-if [ -d "/flyway/sql/egov-filestore" ]; then
-    run_migration "egov-filestore" "egov_filestore_schema_version" "filesystem:/flyway/sql/egov-filestore"
-fi
-
-if [ -d "/flyway/sql/egov-data-uploader" ]; then
-    run_migration "egov-data-uploader" "egov_data_uploader_schema_version" "filesystem:/flyway/sql/egov-data-uploader"
+if [ -d "/flyway/sql/health-service-request" ]; then
+    run_migration "health-service-request" "egov_health_service_request_schema_version" "filesystem:/flyway/sql/health-service-request"
 fi
 
 echo ""
