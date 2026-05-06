@@ -23,36 +23,51 @@ No Kubernetes or cloud accounts are required.
 
 ## Install Tilt
 
-Install the **Tilt CLI** so `tilt` is on your `PATH`. Official instructions (all platforms): **[https://docs.tilt.dev/install.html](https://docs.tilt.dev/install.html)**.
+Install the **Tilt CLI** so `tilt` is on your `PATH`. This repo uses Tilt with **Docker Compose only** (you do **not** need a local Kubernetes cluster for `egov-digit-studio`).
+
+Official page (all options): **[https://docs.tilt.dev/install.html](https://docs.tilt.dev/install.html)**.
 
 ### Linux
 
-Using the official install script (installs a recent release; may require `sudo` depending on your machine):
+Recommended: official install script (uses a package manager when available, otherwise installs the binary to a directory on your `PATH`; you may need `sudo`):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
+tilt version
 ```
 
-Then confirm:
+Or with [Homebrew](https://brew.sh/) on Linux:
 
 ```bash
+brew install tilt
 tilt version
 ```
 
 ### macOS
 
-With [Homebrew](https://brew.sh/):
+Same install script as Linux (often picks up Homebrew automatically):
 
 ```bash
-brew install tilt-dev/tap/tilt
+curl -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
 tilt version
 ```
 
-Or use the same **install script** as Linux if you prefer not to use Homebrew (see [install docs](https://docs.tilt.dev/install.html)).
+Or install only via Homebrew:
+
+```bash
+brew install tilt
+tilt version
+```
 
 ### Windows
 
-Use **Scoop**, **Chocolatey**, or **Windows Package Manager** as described in the [official install page](https://docs.tilt.dev/install.html), then run `tilt version` in a new terminal.
+In **PowerShell**:
+
+```powershell
+iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.ps1'))
+```
+
+Then open a new terminal and run `tilt version`. [Scoop](https://scoop.sh/) and other options are listed on the [install page](https://docs.tilt.dev/install.html).
 
 ---
 
