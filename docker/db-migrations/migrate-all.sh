@@ -49,6 +49,10 @@ if [ -d "/flyway/sql/health-service-request" ]; then
     run_migration "health-service-request" "egov_health_service_request_schema_version" "filesystem:/flyway/sql/health-service-request"
 fi
 
+if [ -d "/flyway/sql/egov-user" ]; then
+    run_migration "egov-user" "egov_user_schema_version" "filesystem:/flyway/sql/egov-user"
+fi
+
 echo ""
 echo "========================================="
 echo "All migrations completed successfully!"
