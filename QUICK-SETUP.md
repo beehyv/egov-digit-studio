@@ -10,10 +10,12 @@ Bring up the laptop-local DIGIT stack using **Tilt**. Tilt still uses **`docker-
 
 | Requirement | Notes |
 |-------------|--------|
-| **Docker** | Recent Engine; ~8 GB+ RAM comfortable for the full stack. |
-| **Docker Compose v2** | Required (`docker compose`); Tilt invokes it for this project. |
+| **Docker Engine** | Install per the official guide: **[Install Docker Engine](https://docs.docker.com/engine/install/)**. A recent release is best; ~8 GB+ RAM is comfortable for the full stack. |
+| **Docker Compose v2** | This project uses the **`docker compose`** CLI (plugin), not legacy `docker-compose`. See **[Install Docker Compose](https://docs.docker.com/compose/install/)** (Linux plugin, or use Docker Desktop below). |
 | **Git** | To clone the repository. |
 | **Tilt CLI** | Install and troubleshoot in **[docs/TILT.md](docs/TILT.md)**; then `tilt version` should work. |
+
+For **macOS and Windows**, **[Docker Desktop](https://docs.docker.com/desktop/)** installs both Docker Engine and Compose v2 together.
 
 No Kubernetes or cloud accounts are required.
 

@@ -113,9 +113,9 @@ tilt up
 | Label | Examples |
 |--------|----------|
 | `infrastructure` | `postgres-db`, `db-migrations`, `pgbouncer`, `redis`, `redpanda`, `minio`, `minio-init`, `gatus`, … |
-| `core-services` | `mdms-backend`, `egov-mdms-service`, `egov-enc-service`, `egov-idgen`, `egov-user`, `egov-workflow-v2`, `egov-localization`, … |
+| `core-services` | `mdms-backend`, `egov-mdms-service`, `egov-enc-service`, `egov-idgen`, `egov-user`, `egov-workflow-v2`, `egov-localization`, `digit-ui`, … |
 | `gateway` | `kong` |
-| `frontend` | `digit-ui` |
+| `frontend` | `digit-studio` |
 | `studio` | `elasticsearch`, `health-individual`, `health-service-request`, `public-service-init`, `public-service`, `user-otp`, `pdf-service`, `studio-pdf`, `inbox`, … |
 | `hrms` | `egov-hrms` |
 | `tools` | `jupyter` |

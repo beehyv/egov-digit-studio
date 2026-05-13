@@ -216,14 +216,7 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
 
-  - name: digit-studio
-    group: Studio
-    url: "http://digit-studio:80/digit-studio/"
-    interval: 30s
-    conditions:
-      - "[STATUS] == 200"
-
-  # ==================== Gateway & UI ====================
+  # ==================== Gateway & UIs ====================
   - name: Kong proxy
     group: Gateway
     url: "http://kong:8000/"
@@ -246,8 +239,15 @@ endpoints:
       - "[STATUS] == 200"
 
   - name: digit-ui
-    group: Frontend
+    group: Core
     url: "http://digit-ui:80/digit-ui/"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+
+  - name: digit-studio
+    group: Frontend
+    url: "http://digit-studio:80/digit-studio/"
     interval: 30s
     conditions:
       - "[STATUS] == 200"
