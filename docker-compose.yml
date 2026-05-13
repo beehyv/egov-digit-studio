@@ -1424,6 +1424,7 @@ services:
   digit-studio:
     image: ${IMAGE_DIGIT_STUDIO:-egovio/digit-studio:studio-e60896a-833}
     container_name: digit-studio
+    # Gateway must be healthy before studio UI (browser talks to APIs through Kong on :18000).
     depends_on:
       kong:
         condition: service_healthy

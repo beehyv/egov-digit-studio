@@ -50,6 +50,12 @@ services:
     paths:
     - /mdms-v2
     strip_path: false
+  # digit-studio globalConfigs uses MDMS_CONTEXT_PATH "egov-mdms-service" (K8s-style).
+  # Browser calls /egov-mdms-service/v1/_search; nginx/mdms-proxy.conf rewrites to mdms-v2.
+  - name: mdms-egov-mdms-service-path-route
+    paths:
+    - /egov-mdms-service
+    strip_path: false
 - name: user-service
   url: http://egov-user:8107
   tags:
@@ -233,6 +239,9 @@ services:
     paths:
     - /digit-studio
     strip_path: false
+    # Pass browser Host (e.g. localhost:18000) so nginx does not build redirects
+    # or absolute URLs using the upstream hostname "digit-studio".
+    preserve_host: true
 - name: public-service-init
   url: http://public-service-init:8080
   tags:
