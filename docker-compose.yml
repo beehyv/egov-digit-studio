@@ -1424,11 +1424,15 @@ services:
   digit-studio:
     image: ${IMAGE_DIGIT_STUDIO:-egovio/digit-studio:studio-e60896a-833}
     container_name: digit-studio
+    # Gateway must be healthy before studio UI (browser talks to APIs through Kong on :18000).
     depends_on:
       kong:
         condition: service_healthy
     ports:
       - "18110:80"
+    volumes:
+      - ./nginx/digit-studio.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/globalConfigs.js:/var/web/digit-studio/globalConfigs.js:ro
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:80/digit-studio/ >/dev/null 2>&1 || exit 1"]
       interval: 30s
@@ -1513,9 +1517,6 @@ services:
     container_name: digit-ui
     ports:
       - "18080:80"
-    volumes:
-      - ./nginx/digit-ui.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./nginx/globalConfigs.js:/var/web/digit-ui/globalConfigs.js:ro
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:80/digit-ui/ >/dev/null 2>&1 || exit 1"]
       interval: 30s

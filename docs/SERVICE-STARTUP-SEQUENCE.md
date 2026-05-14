@@ -113,9 +113,9 @@ tilt up
 | Label | Examples |
 |--------|----------|
 | `infrastructure` | `postgres-db`, `db-migrations`, `pgbouncer`, `redis`, `redpanda`, `minio`, `minio-init`, `gatus`, … |
-| `core-services` | `mdms-backend`, `egov-mdms-service`, `egov-enc-service`, `egov-idgen`, `egov-user`, `egov-workflow-v2`, `egov-localization`, … |
+| `core-services` | `mdms-backend`, `egov-mdms-service`, `egov-enc-service`, `egov-idgen`, `egov-user`, `egov-workflow-v2`, `egov-localization`, `digit-ui`, … |
 | `gateway` | `kong` |
-| `frontend` | `digit-ui` |
+| `frontend` | `digit-studio` |
 | `studio` | `elasticsearch`, `health-individual`, `health-service-request`, `public-service-init`, `public-service`, `user-otp`, `pdf-service`, `studio-pdf`, `inbox`, … |
 | `hrms` | `egov-hrms` |
 | `tools` | `jupyter` |
@@ -176,6 +176,14 @@ docker exec docker-postgres psql -U egov -d egov -c "SELECT schemacode FROM eg_m
 ### idgen sequence / format errors
 
 See historical notes in older DIGIT docs; this stack seeds from **`db/`** and Flyway skips documented in `docker/db-migrations/migrate-all.sh` where they collide with the dump.
+
+### digit-studio via Kong (blank UI or redirect to `http://digit-studio/...`)
+
+1. **Host header:** Kong normally forwards **`Host: digit-studio`** to the container. Nginx may use that for redirects or absolute links. **`kong/kong.yml`** sets **`preserve_host: true`** on the **digit-studio** route so the browser’s host (**`localhost:18000`**) is passed through—reload Kong after edits: `docker compose exec kong kong reload` (or recreate the **kong** container).
+
+2. **Trailing slash:** If **`http://localhost:18000/digit-studio`** (no slash) sent you to **`http://digit-studio/...`**, update **`nginx/digit-studio.conf`** ( **`absolute_redirect off`**, explicit **`location = /digit-studio`**) and recreate **digit-studio**: `docker compose up -d --force-recreate digit-studio`.
+
+3. **Debugging:** Open DevTools → **Network** on **`http://localhost:18000/digit-studio/`** and confirm **`index.html`**, **`*.bundle.js`**, and **`globalConfigs.js`** all return **200** (not blocked or redirected).
 
 ### Inbox flapping or unhealthy
 

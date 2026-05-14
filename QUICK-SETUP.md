@@ -10,12 +10,35 @@ Bring up the laptop-local DIGIT stack using **Tilt**. Tilt still uses **`docker-
 
 | Requirement | Notes |
 |-------------|--------|
-| **Docker** | Recent Engine; ~8 GB+ RAM comfortable for the full stack. |
-| **Docker Compose v2** | Required (`docker compose`); Tilt invokes it for this project. |
+| **Docker Engine** | Install per the official guide: **[Install Docker Engine](https://docs.docker.com/engine/install/)**. A recent release is best; ~8 GB+ RAM is comfortable for the full stack. |
+| **Linux: `docker` group** | **Required** for the flow in this doc: your user must be able to run **`docker`** and **`docker compose`** without typing `sudo` each time (Tilt and helper scripts assume that). Add your user to the **`docker`** group (see below), then **log out and back in** or reboot. Membership in the **`sudo`** / **`wheel`** group is separate—it does **not** grant access to the Docker socket by itself. |
+| **Docker Compose v2** | This project uses the **`docker compose`** CLI (plugin), not legacy `docker-compose`. See **[Install Docker Compose](https://docs.docker.com/compose/install/)** (Linux plugin, or use Docker Desktop below). |
 | **Git** | To clone the repository. |
 | **Tilt CLI** | Install and troubleshoot in **[docs/TILT.md](docs/TILT.md)**; then `tilt version` should work. |
 
+For **macOS and Windows**, **[Docker Desktop](https://docs.docker.com/desktop/)** installs both Docker Engine and Compose v2 together; you normally do not manage a `docker` group by hand.
+
 No Kubernetes or cloud accounts are required.
+
+### Add your user to the `docker` group (Linux)
+
+Run once (you need a session that already has `sudo`, e.g. an admin added you to **`sudo`** first, or you use the root account):
+
+```bash
+sudo groupadd docker 2>/dev/null || true
+sudo usermod -aG docker "$USER"
+```
+
+Then **log out and back in** (or `sudo reboot`). Verify:
+
+```bash
+groups | grep -w docker
+docker run --rm hello-world
+```
+
+You need **`sudo` only for the one-time `usermod` above** (unless your site uses rootless Docker or another socket—then follow that layout instead).
+
+**Not supported in this guide:** running the whole stack by prefixing every command with `sudo docker …`; Tilt and scripts will not behave well with interactive password prompts.
 
 ---
 
@@ -42,11 +65,35 @@ cd egov-digit-studio
 
 ## 2. (Optional) `.env`
 
-Defaults are fine for local dev. To change Postgres password or image tags, add a `.env` in this folder (variables match `docker-compose.yml` header comments, e.g. `POSTGRES_PASSWORD`, `IMAGE_*`).
+Defaults are fine for local dev. Create a **`.env` file in this folder** (`egov-digit-studio/`) when you want to override anything Compose interpolates from the environment: **Postgres password**, **custom or local image tags**, or other variables referenced in **`docker-compose.yml`**.
+
+- **Where to look:** open **`docker-compose.yml`** — the top comment block lists the `IMAGE_*` variables used for studio/sandbox services; each `image:` line shows the pattern `${VAR:-default-registry/tag}`.
+- **Local builds:** if you built an image locally (for example `egov-digit-studio-db-migrations:local` for `db-migrations`), you normally do not need a variable unless you changed the Compose `image:` name. For published services, set the matching `IMAGE_*` to your registry/tag.
+
+Example **`.env`** snippets (adjust tags to your own; lines are optional):
+
+```bash
+# Database password (must stay consistent across services that reference it)
+POSTGRES_PASSWORD=egov123
+
+# Override published images — names must match variables in docker-compose.yml
+IMAGE_EGOV_USER=myregistry.example/egov-user:my-branch-abc123
+IMAGE_DIGIT_STUDIO=egovio/digit-studio:studio-other-tag
+IMAGE_INBOX=myregistry.example/inbox:local-dev
+
+# Example: point MDMS at a specific tag (see docker-compose.yml for the default)
+IMAGE_MDMS_V2=egovio/mdms-v2:master-1e8d2bb
+```
 
 ```bash
 # optional
 nano .env
+```
+
+Validate interpolation without starting containers:
+
+```bash
+docker compose config --quiet
 ```
 
 ---
@@ -105,6 +152,26 @@ Or stop from the Tilt UI. Containers started by Tilt are Compose services; you c
 ```bash
 docker compose down -v
 ```
+
+---
+
+## 7. Recreate one service (Compose)
+
+Useful after changing an image tag in `.env` or rebuilding one image. These commands assume **`docker compose` works without `sudo`** (see [Prerequisites](#prerequisites)).
+
+Stop and remove **only** the named service containers (Compose v2 accepts optional service names on `down`):
+
+```bash
+docker compose down egov-user
+```
+
+Bring that service back (fresh container from the current `image:` / `.env`):
+
+```bash
+docker compose up -d --force-recreate egov-user
+```
+
+Replace `egov-user` with any **service name** from `docker-compose.yml` (the key under `services:`, not the image name).
 
 ---
 

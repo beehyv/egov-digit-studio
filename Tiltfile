@@ -89,6 +89,12 @@ dc_resource('egov-persister', labels=['core-services'],
         link('http://localhost:18091/common-persist/actuator/health', 'Health'),
     ])
 
+dc_resource('digit-ui', labels=['core-services'],
+    resource_deps=['kong'],
+    links=[
+        link('http://localhost:18000/digit-ui/', 'DIGIT UI via Kong'),
+    ])
+
 # ==================== API Gateway ====================
 dc_resource('kong', labels=['gateway'],
     links=[
@@ -102,10 +108,11 @@ dc_resource('jupyter', labels=['tools'], auto_init=True,
         link('http://localhost:18888/jupyter/lab', 'Jupyter Lab'),
     ])
 
-dc_resource('digit-ui', labels=['frontend'],
+dc_resource('digit-studio', labels=['frontend'],
     resource_deps=['kong'],
     links=[
-        link('http://localhost:18000/digit-ui/', 'UI via Kong'),
+        link('http://localhost:18110/digit-studio/', 'Direct'),
+        link('http://localhost:18000/digit-studio/', 'Via Kong'),
     ])
 
 # ==================== HRMS ====================
@@ -189,13 +196,6 @@ dc_resource('studio-pdf', labels=['studio'],
     resource_deps=['pdf-service', 'public-service', 'egov-user', 'egov-workflow-v2'],
     links=[
         link('http://localhost:18118/', 'Service'),
-    ])
-
-dc_resource('digit-studio', labels=['studio'],
-    resource_deps=['kong'],
-    links=[
-        link('http://localhost:18110/digit-studio/', 'Direct'),
-        link('http://localhost:18000/digit-studio/', 'Via Kong'),
     ])
 
 dc_resource('inbox', labels=['studio'],
