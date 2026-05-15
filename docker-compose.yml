@@ -1010,22 +1010,22 @@ services:
       WF_BUSINESS_SERVICE_CREATE_URL: egov-workflow-v2/egov-wf/businessservice/_create
       WF_BUSINESS_SERVICE_SEARCH_PATH: egov-workflow-v2/egov-wf/businessservice/_search
       WF_BUSINESS_SERVICE_UPDATE_PATH: egov-workflow-v2/egov-wf/businessservice/_update
-      INDIVIDUAL_SERVICE_HOST: http://health-individual:8080
+      INDIVIDUAL_SERVICE_HOST: http://health-individual:8080/
       INDIVIDUAL_CREATE_ENDPOINT: health-individual/v1/_create
       INDIVIDUAL_UPDATE_ENDPOINT: health-individual/v1/_update
       INDIVIDUAL_SEARCH_ENDPOINT: health-individual/v1/_search
-      MDMS_SERVICE_HOST: http://egov-mdms-service:8094
+      MDMS_SERVICE_HOST: http://egov-mdms-service:8094/
       MDMS_SEARCH_ENDPOINT: mdms-v2/v1/_search
       MDMS_V2_SEARCH_ENDPOINT: mdms-v2/v2/_search
       MDMS_SEARCH_V2_ENDPOINT: mdms-v2/v2
       MDMS_V2_CREATE_ENDPOINT: mdms-v2/v2/_create
       MDMS_V2_UPDATE_ENDPOINT: mdms-v2/v2/_update
-      BILLING_SERVICE_HOST: http://egov-mdms-service:8094
+      BILLING_SERVICE_HOST: http://egov-mdms-service:8094/
       DEMAND_CREATE_ENDPOINT: billing-service/demand/_create
       BILL_FETCH_ENDPOINT: billing-service/bill/v2/_fetchbill
-      IDGEN_SERVICE_HOST: http://egov-idgen:8088
+      IDGEN_SERVICE_HOST: http://egov-idgen:8088/
       IDGEN_SERVICE_GENERATE_URL: egov-idgen/id/_generate
-      LOCALIZATION_SERVICE_HOST: http://egov-localization:8096
+      LOCALIZATION_SERVICE_HOST: http://egov-localization:8096/
       LOCALIZATION_CONTEXT_PATH: localization/messages/v1
       LOCALIZATION_SEARCH_ENDPOINT: /_search
       LOCALIZATION_UPSERT_ENDPOINT: /_upsert
@@ -1048,7 +1048,7 @@ services:
       BusinessService: BusinessService
       LOCALIZATION_MODULE: rainmaker-studio-
       SAVE_PUBLIC_SERVICE_PROCESS: save-public-service-process
-      SERVICE_REQUEST_HOST: http://health-service-request:8080
+      SERVICE_REQUEST_HOST: http://health-service-request:8080/
       SERVICE_REQUEST_CREATE_ENDPOINT: health-service-request/service/definition/v1/_create
       SERVICE_REQUEST_SEARCH_ENDPOINT: health-service-request/service/definition/v1/_search
       SERVICE_REQUEST_UPDATE_ENDPOINT: health-service-request/service/definition/v1/_update
