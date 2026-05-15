@@ -88,6 +88,17 @@ GRO_ROLES='[
 ]'
 create_user "GRO" "Grievance Officer" "9888888888" "gro@digit.org" "$GRO_ROLES"
 
+
+STUDIO_ROLES='[
+    {"name": "STUDIO_EMPLOYEE", "code": "STUDIO_EMPLOYEE", "tenantId": "pg"},
+    {"name": "STUDIO ADMIN", "code": "STUDIO_ADMIN", "tenantId": "pg"},
+    {"name": "Studio Designer", "code": "STUDIO_DESIGNER", "tenantId": "pg"},
+    {"name": "HRMS Admin", "code": "HRMS_ADMIN", "tenantId": "pg"}
+]'
+create_user "Tulika" "Studio Officer" "9888888880" "tulika@digit.org" "$STUDIO_ROLES"
+
+
+
 # Create Internal Microservice user (required by egov-hrms for internal operations)
 # HRMS searches for this user by roleCodes=INTERNAL_MICROSERVICE_ROLE on startup
 echo ""

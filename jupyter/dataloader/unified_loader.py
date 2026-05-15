@@ -1007,6 +1007,9 @@ class APIUploader:
             results = {
                 'created': 0,
                 'exists': 0,
+                'unauthorized': 0,
+                'forbidden': 0,
+                'invalid': 0,
                 'failed': 0,
                 'errors': []
             }
@@ -1058,17 +1061,31 @@ class APIUploader:
                     results['created'] += 1
 
                 except requests.exceptions.HTTPError as e:
-                    # Get status code - response.status_code is the correct attribute
                     status_code = e.response.status_code if hasattr(e, 'response') and e.response is not None else 500
                     error_text = e.response.text if hasattr(e, 'response') and e.response is not None else str(e)
 
-                    # Extract clean error message from API response
                     error_message = self._extract_error_message(error_text) if error_text else str(e)[:200]
 
-                    if 'already exists' in error_text.lower() or 'duplicate' in error_text.lower():
+                    if status_code == 401:
+                        print(f"   [UNAUTHORIZED] [{i}/{len(data_list)}] {unique_id} (HTTP 401) - Login token invalid or expired")
+                        results['unauthorized'] += 1
+                        results['errors'].append({'id': unique_id, 'error': f'401 Unauthorized: {error_message}'})
+                        status = "UNAUTHORIZED"
+                    elif status_code == 403:
+                        print(f"   [FORBIDDEN] [{i}/{len(data_list)}] {unique_id} (HTTP 403) - Insufficient permissions")
+                        results['forbidden'] += 1
+                        results['errors'].append({'id': unique_id, 'error': f'403 Forbidden: {error_message}'})
+                        status = "FORBIDDEN"
+                    elif status_code == 409 or 'already exists' in error_text.lower() or 'duplicate' in error_text.lower():
                         print(f"   [EXISTS] [{i}/{len(data_list)}] {unique_id} (HTTP {status_code})")
                         results['exists'] += 1
                         status = "EXISTS"
+                    elif status_code == 400:
+                        print(f"   [INVALID] [{i}/{len(data_list)}] {unique_id} (HTTP 400) - Bad request")
+                        print(f"   ERROR: {error_message}")
+                        results['invalid'] += 1
+                        results['errors'].append({'id': unique_id, 'error': f'400 Bad Request: {error_message}'})
+                        status = "INVALID"
                     else:
                         print(f"   [FAILED] [{i}/{len(data_list)}] {unique_id} (HTTP {status_code})")
                         print(f"   ERROR: {error_message}")
@@ -1096,9 +1113,15 @@ class APIUploader:
 
             # Summary
             print("="*60)
-            print(f"[SUMMARY] Created: {results['created']}")
-            print(f"[SUMMARY] Already Exists: {results['exists']}")
-            print(f"[SUMMARY] Failed: {results['failed']}")
+            print(f"[SUMMARY] Created:       {results['created']}")
+            print(f"[SUMMARY] Already Exists:{results['exists']}")
+            if results['unauthorized']:
+                print(f"[SUMMARY] Unauthorized:  {results['unauthorized']}  ← Login token invalid/expired, re-login required")
+            if results['forbidden']:
+                print(f"[SUMMARY] Forbidden:     {results['forbidden']}  ← Insufficient permissions")
+            if results['invalid']:
+                print(f"[SUMMARY] Invalid Req:   {results['invalid']}  ← Bad request / validation error")
+            print(f"[SUMMARY] Failed:        {results['failed']}")
             print("="*60)
 
             # Write status columns directly into the uploaded Excel file
@@ -3710,38 +3733,14 @@ class APIUploader:
             mdms_data: dict
         ):
 
-            url = (
-                f"{self.base_url}"
-                f"/v2/_create/{schema_code}"
-            )
+            url = f"{self.mdms_url}/v2/_create/{schema_code}"
 
             payload = {
                 "RequestInfo": {
                     "apiId": "Rainmaker",
                     "authToken": self.auth_token,
-                    "userInfo": {
-                        "id": 10543,
-                        "uuid": str(uuid.uuid4()),
-                        "userName": "MICROPLAN_ADMIN_DEV",
-                        "name": "User Dev",
-                        "mobileNumber": "7222611899",
-                        "type": "EMPLOYEE",
-                        "roles": [
-                            {
-                                "name": "System Administrator",
-                                "code": "SYSTEM_ADMINISTRATOR",
-                                "tenantId": tenant_id
-                            },
-                            {
-                                "name": "MDMS ADMIN",
-                                "code": "MDMS_ADMIN",
-                                "tenantId": tenant_id
-                            }
-                        ],
-                        "active": True,
-                        "tenantId": tenant_id
-                    },
-                    "msgId": f"{uuid.uuid4()}|en_IN",
+                    "userInfo": self.user_info,
+                    "msgId": f"{int(time.time() * 1000)}|en_IN",
                     "plainAccessRequest": {}
                 },
                 "Mdms": mdms_data
@@ -3749,9 +3748,7 @@ class APIUploader:
 
             response = requests.post(
                 url,
-                headers={
-                    "Content-Type": "application/json"
-                },
+                headers={"Content-Type": "application/json"},
                 data=json.dumps(payload)
             )
 

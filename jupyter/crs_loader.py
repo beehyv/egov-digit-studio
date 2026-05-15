@@ -315,20 +315,29 @@ class CRSLoader:
 
         total_created = 0
         total_exists = 0
+        total_unauthorized = 0
+        total_forbidden = 0
+        total_invalid = 0
         total_failed = 0
 
         for key, value in results.items():
             if value and isinstance(value, dict):
-                created = value.get('created', 0)
-                exists = value.get('exists', 0)
-                failed = value.get('failed', 0)
-                total_created += created
-                total_exists += exists
-                total_failed += failed
+                total_created += value.get('created', 0)
+                total_exists += value.get('exists', 0)
+                total_unauthorized += value.get('unauthorized', 0)
+                total_forbidden += value.get('forbidden', 0)
+                total_invalid += value.get('invalid', 0)
+                total_failed += value.get('failed', 0)
 
-        print(f"   Created: {total_created}")
-        print(f"   Already existed: {total_exists}")
-        print(f"   Failed: {total_failed}")
+        print(f"   Created:        {total_created}")
+        print(f"   Already existed:{total_exists}")
+        if total_unauthorized:
+            print(f"   Unauthorized:   {total_unauthorized}  ← Re-login required (401)")
+        if total_forbidden:
+            print(f"   Forbidden:      {total_forbidden}  ← Insufficient permissions (403)")
+        if total_invalid:
+            print(f"   Invalid Req:    {total_invalid}  ← Validation/bad request (400)")
+        print(f"   Failed:         {total_failed}")
         print(f"{'─'*40}")
 
 

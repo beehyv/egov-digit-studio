@@ -315,20 +315,29 @@ class CRSLoader:
 
         total_created = 0
         total_exists = 0
+        total_unauthorized = 0
+        total_forbidden = 0
+        total_invalid = 0
         total_failed = 0
 
         for key, value in results.items():
             if value and isinstance(value, dict):
-                created = value.get('created', 0)
-                exists = value.get('exists', 0)
-                failed = value.get('failed', 0)
-                total_created += created
-                total_exists += exists
-                total_failed += failed
+                total_created += value.get('created', 0)
+                total_exists += value.get('exists', 0)
+                total_unauthorized += value.get('unauthorized', 0)
+                total_forbidden += value.get('forbidden', 0)
+                total_invalid += value.get('invalid', 0)
+                total_failed += value.get('failed', 0)
 
-        print(f"   Created: {total_created}")
-        print(f"   Already existed: {total_exists}")
-        print(f"   Failed: {total_failed}")
+        print(f"   Created:        {total_created}")
+        print(f"   Already existed:{total_exists}")
+        if total_unauthorized:
+            print(f"   Unauthorized:   {total_unauthorized}  ← Re-login required (401)")
+        if total_forbidden:
+            print(f"   Forbidden:      {total_forbidden}  ← Insufficient permissions (403)")
+        if total_invalid:
+            print(f"   Invalid Req:    {total_invalid}  ← Validation/bad request (400)")
+        print(f"   Failed:         {total_failed}")
         print(f"{'─'*40}")
 
 
@@ -518,25 +527,53 @@ class CRSLoader:
         created = 0
         failed = 0
 
-        for mdms_record in mdms_records:
+        errors = []
 
-            result = self.uploader.create_mdms_data_v2(
-                schema_code=mdms_record["schemaCode"],
-                tenant_id=mdms_record["tenantId"],
-                mdms_data=mdms_record["data"]
-            )
+        for i, mdms_record in enumerate(mdms_records, 1):
+            schema_code = mdms_record["schemaCode"]
+            unique_id = mdms_record.get("data", {}).get("uniqueIdentifier") or schema_code
 
+            try:
+                response = self.uploader.create_mdms_data_v2(
+                    schema_code=schema_code,
+                    tenant_id=mdms_record["tenantId"],
+                    mdms_data=mdms_record["data"]
+                )
+                status_code = response.status_code
 
+                if status_code == 401:
+                    print(f"   [UNAUTHORIZED] [{i}/{len(mdms_records)}] {unique_id} (HTTP 401) - Login token invalid or expired")
+                    failed += 1
+                    errors.append({'id': unique_id, 'error': '401 Unauthorized: re-login required'})
+                elif status_code == 403:
+                    print(f"   [FORBIDDEN] [{i}/{len(mdms_records)}] {unique_id} (HTTP 403) - Insufficient permissions")
+                    failed += 1
+                    errors.append({'id': unique_id, 'error': '403 Forbidden'})
+                elif status_code in (200, 201):
+                    print(f"   [OK] [{i}/{len(mdms_records)}] {unique_id}")
+                    created += 1
+                else:
+                    error_text = response.text[:200] if response.text else str(status_code)
+                    print(f"   [FAILED] [{i}/{len(mdms_records)}] {unique_id} (HTTP {status_code})")
+                    print(f"   ERROR: {error_text}")
+                    failed += 1
+                    errors.append({'id': unique_id, 'error': error_text})
+
+            except Exception as e:
+                print(f"   [ERROR] [{i}/{len(mdms_records)}] {unique_id} - {str(e)[:100]}")
+                failed += 1
+                errors.append({'id': unique_id, 'error': str(e)[:200]})
 
         print(f"\n{'─'*40}")
         print("MDMS Data Summary")
-        print(f"Created: {created}")
-        print(f"Failed: {failed}")
+        print(f"   Created: {created}")
+        print(f"   Failed:  {failed}")
         print(f"{'─'*40}")
 
         return {
             "created": created,
-            "failed": failed
+            "failed": failed,
+            "errors": errors
         }
 
 
