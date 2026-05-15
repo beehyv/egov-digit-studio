@@ -58,10 +58,12 @@ if [ -d "/flyway/sql/egov-otp" ]; then
 fi
 
 if [ -d "/flyway/sql/public-service" ]; then
-  run_migration "public-service" "public_service_schema_version" "filesystem:/flyway/sql/public-service" fi
+  run_migration "public-service" "public_service_schema_version" "filesystem:/flyway/sql/public-service"
+fi
 
 if [ -d "/flyway/sql/public-service-init" ]; then
-  run_migration "public-service-init" "public_service_init_schema_version" "filesystem:/flyway/sql/public-service-init" fi
+  run_migration "public-service-init" "public_service_init_schema_version" "filesystem:/flyway/sql/public-service-init"
+fi
 
 
 
