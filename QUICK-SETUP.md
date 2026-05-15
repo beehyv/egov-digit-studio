@@ -126,6 +126,8 @@ The first full start can take **several minutes**. Use the Tilt UI to watch reso
 
 When things look ready, use **[Access after startup](#access-after-startup)** for the Tilt dashboard and the frontend URLs.
 
+> **First-time setup:** before opening the DIGIT UI, seed the master data using the Jupyter Dataloader — see **[docs/JUPYTER-DATALOADER.md](docs/JUPYTER-DATALOADER.md)**.
+
 ---
 
 ## 5. Checks (optional)
