@@ -1,4 +1,4 @@
-CREATE TABLE eg_token (
+CREATE TABLE IF NOT EXISTS eg_token (
     id character(36) PRIMARY KEY,
     tenantid character varying(256) NOT NULL,
     tokennumber character varying(128) NOT NULL,
@@ -12,4 +12,4 @@ CREATE TABLE eg_token (
     version bigint
 );
 
-CREATE INDEX idx_token_number_identity_tenant ON eg_token (tokennumber, tokenidentity, tenantid);
+CREATE INDEX IF NOT EXISTS idx_token_number_identity_tenant ON eg_token (tokennumber, tokenidentity, tenantid);

@@ -712,6 +712,9 @@ services:
       EGOV_IDGEN_HOST: http://egov-idgen:8088/
       EGOV_USER_HOST: http://egov-user:8107
       EGOV_INDIVIDUAL_HOST: http://health-individual:8080/
+      EGOV_INDIVIDUAL_SEARCH_ENDPOINT: health-individual/v1/_search
+      EGOV_INDIVIDUAL_CREATE_ENDPOINT: health-individual/v1/_create
+      EGOV_INDIVIDUAL_UPDATE_ENDPOINT: health-individual/v1/_update
       EGOV_FILESTORE_HOST: http://egov-filestore:8083
       EGOV_LOCALIZATION_HOST: http://egov-localization:8096
       EGOV_BOUNDARY_HOST: http://boundary-service:8081
@@ -904,6 +907,7 @@ services:
       USER_SERVICE_ACCOUNT_LOCKED: "false"
       NOTIFICATION_SMS_ENABLED: "false"
       STATE_LEVEL_TENANT_ID: pg
+      EGOV_BOUNDARY_HOST: http://boundary-service:8081
       INDIVIDUAL_PRODUCER_SAVE_TOPIC: save-individual-health-topic
       INDIVIDUAL_PRODUCER_UPDATE_TOPIC: update-individual-health-topic
       INDIVIDUAL_PRODUCER_DELETE_TOPIC: delete-individual-health-topic
