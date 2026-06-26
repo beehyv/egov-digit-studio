@@ -186,6 +186,12 @@ dc_resource('egov-notification-sms', labels=['studio'],
         link('http://localhost:18117/egov-notification-sms/actuator/health', 'Health'),
     ])
 
+local_resource('sms-credentials-log',
+    serve_cmd='docker exec digit-redpanda rpk topic consume egov.core.notification.sms --offset start',
+    resource_deps=['egov-notification-sms'],
+    labels=['studio'],
+)
+
 dc_resource('pdf-service', labels=['studio'],
     resource_deps=['egov-mdms-service', 'egov-localization', 'egov-filestore'],
     links=[
